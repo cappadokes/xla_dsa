@@ -130,5 +130,6 @@ int main(int argc, char **argv) {
 
   } else {
     std::cout << "Could not open file: " << new_path << filename << std::endl;
+    exit(1);
   }
 }
