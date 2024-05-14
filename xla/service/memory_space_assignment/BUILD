@@ -1,10 +1,10 @@
 # Description:
 #   Memory Space Assignment service implementation.
 
-load(
-    "@tsl//tsl/platform:build_config.bzl",
-    "tf_proto_library",
-)
+    load(
+        "@tsl//tsl/platform:build_config.bzl",
+        "tf_proto_library",
+    )
 load("@tsl//tsl/platform:rules_cc.bzl", "cc_library")
 load(
     "//xla:xla.bzl",
@@ -13,7 +13,7 @@ load(
 load("//xla/tsl:tsl.bzl", "internal_visibility")
 
 package(
-    # copybara:uncomment default_applicable_licenses = ["//tensorflow:license"],
+    # copybara: uncomment default_applicable_licenses = ["//tensorflow:license"],
     default_visibility = internal_visibility([":friends"]),
     licenses = ["notice"],
 )
@@ -523,5 +523,19 @@ xla_cc_test(
         "@com_google_absl//absl/container:flat_hash_map",
         "@com_google_absl//absl/types:span",
         "@tsl//tsl/platform:test",
+    ],
+)
+
+xla_cc_test(
+    name = "best_fit_repacker_prof",
+    srcs = ["best_fit_repacker_prof.cc"],
+    deps = [
+        ":best_fit_repacker",
+        ":repacking",
+        "//xla:comparison_util",
+        "//xla/service/heap_simulator",
+        "//xla/service/heap_simulator:allocation_block",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/types:span",
     ],
 )
