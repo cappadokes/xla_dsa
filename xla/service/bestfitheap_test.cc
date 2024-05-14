@@ -93,8 +93,6 @@ int main(int argc, char **argv) {
   auto end = std::chrono::high_resolution_clock::now();
   auto duration =
       std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-  std::ofstream timefile("/workspace/xla/xla/service/test-heapsim/times.csv",
-                         std::ios::app);
   std::cout << duration.count();
 
   const char *path = std::getenv("BASE_PATH");
@@ -109,7 +107,7 @@ int main(int argc, char **argv) {
   std::string path_string = std::string(path);
   std::string filename = std::string(name) + "-out.csv";
 
-  std::string new_path = path_string + "/";
+  std::string new_path = path_string + "/csv-out/";
   std::ofstream outfile(new_path + filename, std::ios::trunc);
 
   if (outfile.is_open()) {
