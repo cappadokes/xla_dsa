@@ -30,6 +30,7 @@ limitations under the License.
 #include <tuple>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 #include "absl/algorithm/container.h"
 #include "absl/container/flat_hash_map.h"
@@ -629,6 +630,16 @@ void GlobalDecreasingSizeBestFitHeap<BufferType>::Alloc(
       buffer, BufferInterval{buffer, size, current_time_, -1, {}, true});
   CHECK(emplace_result.second);
   ++current_time_;
+}
+
+template <typename BufferType>
+void GlobalDecreasingSizeBestFitHeap<BufferType>::AllocNew(
+    const BufferType* buffer, int64_t id, int64_t lower, int64_t upper,
+    int64_t size) {
+  auto emplace_result = buffer_intervals_.emplace(
+      buffer, BufferInterval{buffer, size, lower, upper, {}, true});
+
+  CHECK(emplace_result.second);
 }
 
 template <typename BufferType>
@@ -2345,6 +2356,58 @@ void GlobalDecreasingSizeBestFitHeap<BufferType>::AddToChunkMap(
 
 absl::StatusOr<HeapSimulator::Result<HloValue>>
 ConstrainedGlobalDecreasingSizeBestFitHeap::Finish() {
+  std::vector<BufferInterval> sorted_buffer_vec = GetSortedBufferIntervals();
+  // Convert into std::list so that erase() is O(1).
+  std::list<BufferInterval> sorted_buffer_intervals(sorted_buffer_vec.begin(),
+                                                    sorted_buffer_vec.end());
+
+  // Use do-while here, because we need to create 1 heap in `multi_heap_result`
+  // even if `sorted_buffer_intervals` is empty.
+  Result multi_heap_result;
+  do {
+    // Place buffers into the currently processed heap as many as possible.
+    for (auto it = sorted_buffer_intervals.begin();
+         it != sorted_buffer_intervals.end();) {
+      BufferInterval buffer_interval = *it;
+      if (!buffer_interval.need_allocation) {
+        it = sorted_buffer_intervals.erase(it);
+        continue;
+      }
+      if (buffer_interval.size > size_limit_per_heap_) {
+        LOG(WARNING) << "Alloc buffer size " << buffer_interval.size
+                     << " larger than the per-heap size limit "
+                     << size_limit_per_heap_;
+      }
+
+      Chunk chunk_candidate = FindChunkCandidate(buffer_interval);
+      if (chunk_candidate.chunk_end() <= size_limit_per_heap_ ||
+          // Commit the chunk as long as the heap is empty. We do this because
+          // we want the size constraint to be soft, meaning that results are
+          // successfully generated even if there are some buffer sizes larger
+          // than the given constraint size.
+          result_.heap_size == 0) {
+        CommitChunk(buffer_interval, chunk_candidate);
+        it = sorted_buffer_intervals.erase(it);
+        continue;
+      }
+
+      ++it;
+    }
+    // Collect the result from the currently processed heap and reset the heap
+    // states.
+    multi_heap_result.heap_size += result_.heap_size;
+    multi_heap_result.heap_results.push_back(std::move(result_));
+    result_ = {};
+    interval_tree_ = {};
+  } while (!sorted_buffer_intervals.empty());
+
+  VLOG(1) << "Number of heaps produced = "
+          << multi_heap_result.heap_results.size();
+  return multi_heap_result;
+}
+
+HeapSimulator::Result<HloValue>
+ConstrainedGlobalDecreasingSizeBestFitHeap::FinishNew() {
   std::vector<BufferInterval> sorted_buffer_vec = GetSortedBufferIntervals();
   // Convert into std::list so that erase() is O(1).
   std::list<BufferInterval> sorted_buffer_intervals(sorted_buffer_vec.begin(),

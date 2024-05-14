@@ -806,6 +806,7 @@ class GlobalDecreasingSizeBestFitHeap : public HeapAlgorithm<BufferType> {
   ~GlobalDecreasingSizeBestFitHeap() override {}
 
   void Alloc(const BufferType* buffer, int64_t size) override;
+  void AllocNew(const BufferType* buffer, int64_t id, int64_t lower, int64_t upper, int64_t size);
   void Free(const BufferType* buffer, int64_t size) override;
 
   void ShareWith(const BufferType* buffer, const BufferType* share_with,
@@ -955,6 +956,7 @@ class ConstrainedGlobalDecreasingSizeBestFitHeap
   ~ConstrainedGlobalDecreasingSizeBestFitHeap() override {}
 
   absl::StatusOr<Result> Finish() override;
+  Result FinishNew();
 
  private:
   uint64_t size_limit_per_heap_;
