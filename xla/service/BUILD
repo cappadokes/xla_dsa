@@ -1742,6 +1742,33 @@ xla_cc_test(
     ],
 )
 
+xla_cc_binary(
+    name = "bestfitheap_test",
+    srcs = ["bestfitheap_test.cc"],
+    deps = [
+        ":buffer_assignment",
+        ":buffer_value",
+        ":call_graph",
+        ":copy_insertion",
+        ":cpu_plugin",
+        ":flatten_call_graph",
+        ":hlo_dce",
+        ":hlo_memory_scheduler",
+        ":hlo_ordering",
+        ":hlo_parser",
+        ":hlo_proto_cc",
+        ":hlo_proto_util",
+        "//xla:literal",
+        "//xla:shape_util",
+        "//xla:types",
+        "//xla:xla_data_proto_cc",
+        "//xla/hlo/ir:hlo",
+        "@com_google_absl//absl/container:flat_hash_set",
+        "@com_google_absl//absl/strings",
+        "@tsl//tsl/platform:statusor",
+    ],
+)
+
 cc_library(
     name = "hlo_ordering",
     srcs = ["hlo_ordering.cc"],
