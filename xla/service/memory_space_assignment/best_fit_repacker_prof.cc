@@ -68,7 +68,7 @@ std::vector<xla::AllocationBlock *> fillAllocations(
     auto start = static_cast<int64_t>(stoi(value));
 
     getline(ss, value, ',');
-    auto end = static_cast<int64_t>(stoi(value)) - 1;
+    auto end = static_cast<int64_t>(stoi(value));
 
     getline(ss, value, ',');
     auto size = static_cast<int64_t>(stoi(value));
@@ -122,7 +122,7 @@ int main(int argc, char **argv) {
     for (auto AllocationBlockPtr : RepackerTest.allocation_blocks_) {
       outfile << AllocationBlockPtr.id << ","
               << AllocationBlockPtr.inclusive_start_time << ","
-              << AllocationBlockPtr.end_time + 1 << ","
+              << AllocationBlockPtr.end_time << ","
               << AllocationBlockPtr.size << "," << AllocationBlockPtr.offset
               << std::endl;
     }

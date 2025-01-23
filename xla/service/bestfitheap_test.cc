@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
     auto start = static_cast<int64_t>(stoi(value));
 
     getline(ss, value, ',');
-    auto end = static_cast<int64_t>(stoi(value)) - 1;
+    auto end = static_cast<int64_t>(stoi(value));
 
     getline(ss, value, ',');
     auto size = static_cast<int64_t>(stoi(value));
@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
       }
       for (const auto &p : value.chunk_map) {
         outfile << p.first->id() << "," << id_to_interval[p.first->id()].first
-                << "," << id_to_interval[p.first->id()].second + 1 << ","
+                << "," << id_to_interval[p.first->id()].second << ","
                 << p.second.size << "," << p.second.offset << std::endl;
       }
     }
