@@ -66,16 +66,16 @@ int main(int argc, char **argv) {
     std::string value;
 
     getline(ss, value, ',');
-    auto id = static_cast<int64_t>(stoi(value));
+    auto id = static_cast<int64_t>(stoll(value));
 
     getline(ss, value, ',');
-    auto start = static_cast<int64_t>(stoi(value));
+    auto start = static_cast<int64_t>(stoll(value));
 
     getline(ss, value, ',');
-    auto end = static_cast<int64_t>(stoi(value));
+    auto end = static_cast<int64_t>(stoll(value));
 
     getline(ss, value, ',');
-    auto size = static_cast<int64_t>(stoi(value));
+    auto size = static_cast<int64_t>(stoll(value));
 
     auto val = new xla::HloValue(id, dummy_inst_.get(), {}, false);
     values[cnt] = val;
